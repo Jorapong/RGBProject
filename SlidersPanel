@@ -1,0 +1,142 @@
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+public class SlidersPanel extends JPanel{
+    
+    // Sliders for arranging analog signals of each individual LED 
+    protected static JSlider redSlider;
+    protected static JSlider greenSlider;
+    protected static JSlider blueSlider;
+    //  Labels for being user friendly
+    protected static JLabel redLabel;
+    protected static JLabel greenLabel;
+    protected static JLabel blueLabel;
+    protected static JLabel redVal;
+    protected static JLabel greenVal;
+    protected static JLabel blueVal;
+    //  Button for sending the value
+    protected static JButton submit;
+    //  Panels
+    protected static JPanel colorPanel;
+    // Pointer of the class
+    TestingOfLedOnArduinoFromJava test1;
+    // Integers represent the analog signal that will be send to Arduino UNo
+    protected static int red = 0;
+    protected static int green = 0;
+    protected static int blue = 0;
+    //Boolean
+    protected static boolean isPressed = false;//  Symbolizes the status of the button
+    private JButton btnRainbow;
+    private JButton btnRandom;
+    
+    public SlidersPanel(){
+        //  Sliders
+        redSlider = new JSlider(0, 255);
+        redSlider.setBounds(65, 39, 290, 22);
+        redSlider.setValue(0);
+        greenSlider = new JSlider(0, 255);
+        greenSlider.setBounds(65, 71, 290, 22);
+        greenSlider.setValue(0);
+        blueSlider = new JSlider(0, 255);
+        blueSlider.setBounds(65, 103, 290, 22);
+        blueSlider.setValue(0);
+        //  Adding ActionListener to Sliders
+        redSlider.addChangeListener( new SliderListener() );
+        greenSlider.addChangeListener( new SliderListener() );
+        blueSlider.addChangeListener( new SliderListener() );
+        //  Labels
+        redLabel = new JLabel("RED");
+        redLabel.setBounds(10, 39, 54, 22);
+        redLabel.setForeground(Color.RED);
+        redVal = new JLabel("0");
+        redVal.setBounds(365, 39, 60, 22);
+        greenLabel = new JLabel("GREEN");
+        greenLabel.setBounds(10, 71, 54, 22);
+        greenLabel.setForeground(Color.GREEN);
+        greenVal = new JLabel("0");
+        greenVal.setBounds(365, 71, 60, 22);
+        blueLabel = new JLabel("BLUE");
+        blueLabel.setBounds(10, 103, 36, 22);
+        blueLabel.setForeground(Color.BLUE);
+        blueVal = new JLabel("0");
+        blueVal.setBounds(365, 103, 70, 22);
+        //  Button and its listener
+        submit = new JButton("SUBMIT");
+        submit.setBounds(152, 262, 113, 29);
+        submit.addActionListener( new ButtonListener() );
+        //  An additional panel for displaying the selected color
+        colorPanel = new JPanel();
+        colorPanel.setBounds(396, 39, 29, 86);
+        colorPanel.setBackground( new Color(128, 128, 128) );
+        setLayout(null);
+        
+        //  ADDING
+        //  First row
+        add(redSlider);
+        add(redVal);
+        add(redLabel);
+        //  Second row
+        add(greenSlider);
+        add(greenVal);
+        add(greenLabel);
+        add(colorPanel);
+        //  Third row
+        add(blueSlider);
+        add(blueVal);
+        add(blueLabel);
+        add(submit);
+        
+        btnRainbow = new JButton("Rainbow");
+        btnRainbow.setBounds(88, 181, 85, 21);
+        add(btnRainbow);
+        
+        btnRandom = new JButton("Random");
+        btnRandom.setBounds(270, 181, 85, 21);
+        add(btnRandom);
+        //  Initializing the object
+        test1 = new TestingOfLedOnArduinoFromJava();
+    }
+    
+    protected class SliderListener implements ChangeListener{
+        
+        public void stateChanged(ChangeEvent event){
+            //  Updates the values of the colors
+            redVal.setText( "" + redSlider.getValue() );
+            greenVal.setText( "" + greenSlider.getValue() );
+            blueVal.setText( "" + blueSlider.getValue() );
+            //  Updates the panel that displays the chosen color
+            colorPanel.setBackground( new Color (redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue()) );
+        }
+    }
+    
+    protected class ButtonListener implements ActionListener{
+        
+        public void actionPerformed( ActionEvent event){                  
+            //  Updates the color codes
+            red = redSlider.getValue();
+            green = greenSlider.getValue();
+            blue = blueSlider.getValue();
+            
+            System.out.println( test1.isInitialized() );
+            if(test1.isInitialized())
+                test1.sendData((char)red, (char)green,(char)blue);
+        }
+    } 
+    
+    public static void main( String[] args ){
+        JFrame frame = new JFrame("RGB LED CONTROLLER");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(new SlidersPanel() );
+        frame.pack();
+        frame.setVisible( true );
+    }
+}
